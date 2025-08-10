@@ -3,36 +3,30 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 
-const authRouter = require("./routes/auth");
-const productRoutes = require("./routes/products");
-const { authenticateToken, authorizeRoles } = require("./middleware/auth");
-
 const app = express();
+
+// Port ayarı (env dosyasında yoksa 4000 kullan)
 const PORT = process.env.PORT || 4000;
 
 // Middleware
 app.use(cors());
-app.use(express.json({ limit: "10mb" })); // JSON veri boyutu sınırı arttırıldı
-app.use(express.urlencoded({ limit: "10mb", extended: true }));
+app.use(express.json());
 
-// MongoDB Bağlantısı
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB bağlantısı başarılı"))
-  .catch((err) => console.error("MongoDB bağlantı hatası:", err));
-
-// Auth Router (Kayıt ve Giriş)
-app.use("/auth", authRouter);
-
-// Test Endpoint
+// Basit test endpointi
 app.get("/", (req, res) => {
-  res.send("Backend çalışıyor!");
+  res.send("Backend server is running");
 });
 
-// Ürün Routes
-app.use("/products", productRoutes);
+// MongoDB bağlantısı (örn. .env içinde MONGO_URI var ise bağlan)
+// Burayı kendi connection string'ine göre düzenle
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log("MongoDB connected"))
+.catch(err => console.error("MongoDB connection error:", err));
 
-// Server Başlat
+// Server başlatma
 app.listen(PORT, () => {
-  console.log(`Server ${PORT} portunda çalışıyor.`);
+  console.log(`Server started on port ${PORT}`);
 });
