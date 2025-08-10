@@ -1,5 +1,0 @@
-MONGO_URI=mongodb+srv://barrann24:i0E9FUGFx0CtZjKL@cluster0.28nsg6b.mongodb.net/zeytinyagiDB?retryWrites=true&w=majority
-JWT_SECRET=benim_super_gizli_keyim
-ADMIN_USER=admin
-ADMIN_PASS=YPTMmBTD7edJLds3
-PORT=process.env.PORT || 4000
