@@ -5,7 +5,7 @@ const cors = require("cors");
 const authRoutes = require("./routes/auth");
 const productRoutes = require("./routes/products");
 const musteriRoutes = require("./routes/musteriler");
-const User = require("./models/User");
+const User = require("./models/user");
 const bcrypt = require("bcryptjs");
 
 const app = express();
