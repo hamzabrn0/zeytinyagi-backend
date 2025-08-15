@@ -35,12 +35,13 @@ router.post(
 
       res.status(201).json({ message: "Kayıt başarılı" });
     } catch (err) {
+      console.error("Register Hatası:", err);
       res.status(500).json({ message: "Sunucu hatası" });
     }
   }
 );
 
-// Giriş yapma endpoint’i
+// Giriş yapma endpoint’i (log eklenmiş versiyon)
 router.post(
   "/login",
   body("username").exists(),
@@ -51,26 +52,37 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
 
     const { username, password } = req.body;
+    console.log("Gelen login isteği:", { username, password });
 
     try {
       const user = await User.findOne({ username });
-      if (!user) return res.status(400).json({ message: "Kullanıcı bulunamadı" });
+      if (!user) {
+        console.warn("Kullanıcı bulunamadı:", username);
+        return res.status(400).json({ message: "Kullanıcı bulunamadı" });
+      }
 
       const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) return res.status(400).json({ message: "Parola yanlış" });
+      if (!isMatch) {
+        console.warn("Şifre eşleşmedi:", username);
+        return res.status(400).json({ message: "Parola yanlış" });
+      }
 
-      const token = jwt.sign({ userId: user._id, role: user.role }, JWT_SECRET, {
-        expiresIn: "1h",
-      });
+      const token = jwt.sign(
+        { userId: user._id, role: user.role },
+        JWT_SECRET,
+        { expiresIn: "1h" }
+      );
 
+      console.log("Giriş başarılı:", username);
       res.json({ token });
     } catch (err) {
-      res.status(500).json({ message: "Sunucu hatası" });
+      console.error("Login Hatası:", err);
+      res.status(500).json({ message: "Sunucu hatası", error: err.message });
     }
   }
 );
 
-// Yeni eklenen profil endpoint’i - Giriş yapmış kullanıcı bilgilerini döner
+// Profil endpoint’i
 router.get("/profile", authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.userId).select("-password");
@@ -78,6 +90,7 @@ router.get("/profile", authenticateToken, async (req, res) => {
 
     res.json(user);
   } catch (err) {
+    console.error("Profile Hatası:", err);
     res.status(500).json({ message: "Sunucu hatası" });
   }
 });
